@@ -105,6 +105,7 @@ GameObject:
   - component: {fileID: 8653898989830659094}
   - component: {fileID: 8653898989830659093}
   - component: {fileID: 8653898989830659089}
+  - component: {fileID: 3948684413647378738}
   m_Layer: 0
   m_Name: Shell
   m_TagString: Untagged
@@ -205,3 +206,19 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &3948684413647378738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8653898989830659092}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e72912592242f474fb88e4ced97383a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsCoreShell: 1
+  renderer: {fileID: 8653898989830659094}
+  health: 100
+  score: 100
