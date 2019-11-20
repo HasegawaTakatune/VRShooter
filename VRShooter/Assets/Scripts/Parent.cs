@@ -33,6 +33,6 @@ public class Parent : MonoBehaviour
         }
 
         GetComponent<Rigidbody>().useGravity = true;
-        Destroy(gameObject, 1);
+        Destroy(gameObject, 0.2f);
     }
 }

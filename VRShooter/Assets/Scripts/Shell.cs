@@ -104,6 +104,7 @@ public class Shell : MonoBehaviour
         isBreak = true;
         transform.parent = null;
         GetComponent<Rigidbody>().useGravity = true;
+        Destroy(gameObject, 0.2f);
     }
 
     /// <summary>
