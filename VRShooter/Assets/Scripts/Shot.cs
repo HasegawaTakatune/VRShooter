@@ -4,18 +4,38 @@ using UnityEngine;
 
 public class Shot : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] private GameObject bullet;
+
+    private Transform trns;
+
+    private void Start()
     {
-        
+        trns = transform;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        
+#if UNITY_EDITOR
+        if (Input.GetMouseButtonDown(0))
+        {
+            Shoot();
+        }
+#elif UNITY_ANDROID
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+
+            if(touch.phase == TouchPhase.Began)
+            {
+                Shoot();
+            }
+        }
+#endif 
     }
 
-
+    private void Shoot()
+    {
+        Instantiate(bullet, trns.position + trns.forward, trns.rotation);
+    }
 
 }
