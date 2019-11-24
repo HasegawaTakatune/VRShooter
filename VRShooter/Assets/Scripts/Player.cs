@@ -6,7 +6,7 @@ using UnityEngine.UI;
 /// プレイヤー
 /// </summary>
 public class Player : MonoBehaviour
-{   
+{
     /// <summary>
     /// 垂直ローテーション
     /// </summary>
@@ -16,6 +16,16 @@ public class Player : MonoBehaviour
     /// 水平ローテーション
     /// </summary>
     private Transform horRot;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [SerializeField] private Selected selected;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [SerializeField] private LayerMask mask;
 
     /// <summary>
     /// 初期化
@@ -38,5 +48,30 @@ public class Player : MonoBehaviour
         verRot.transform.Rotate(0, xRotation, 0);
         horRot.transform.Rotate(-yRotation, 0, 0);
 #endif 
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerator Selected()
+    {
+        selected.Activate(true);
+        while (true)
+        {
+            yield return null;
+
+            // 選択項目を注視している間ゲージがたまる
+            if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, Mathf.Infinity, mask))
+            {
+                if (selected.TimeCount(Time.deltaTime))
+                    break;
+            }
+            else
+            {
+                selected.TimeReset();
+            }
+        }
+        selected.Activate(false);
     }
 }
