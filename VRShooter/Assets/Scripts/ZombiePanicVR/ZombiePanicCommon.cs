@@ -13,3 +13,17 @@ public enum GAME_STATUS
     END,
     LENGTH
 }
+
+public enum ZOMBIE_STATUS
+{
+    MOVE = 0,
+    STOP,
+    ATTACK,
+    DEAD,
+    LENGTH
+}
+
+public class Layer
+{
+    public const int BARRICADE = 11;
+}
