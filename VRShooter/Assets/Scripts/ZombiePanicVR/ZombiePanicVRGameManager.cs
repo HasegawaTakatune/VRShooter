@@ -1,25 +1,60 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// ゲームマネージャー
+/// </summary>
 public class ZombiePanicVRGameManager : MonoBehaviour
 {
+    /// <summary>
+    /// ゲームステータス
+    /// </summary>
     GAME_STATUS state = GAME_STATUS.MENU;
 
-    [SerializeField] private Title title;
+    /// <summary>
+    /// タイトルUI
+    /// </summary>
+    [SerializeField] private Title title = default;
+
+    /// <summary>
+    /// タイトル表示判定
+    /// </summary>
     private bool showTitle = false;
 
-    [SerializeField] private Message message;
+    /// <summary>
+    /// メッセージUI
+    /// </summary>
+    [SerializeField] private Message message = default;
 
-    [SerializeField] private Player player;
+    /// <summary>
+    /// プレイヤ
+    /// </summary>
+    [SerializeField] private Player player = default;
 
-    [SerializeField] private Timer timer;
+    /// <summary>
+    /// タイマー
+    /// </summary>
+    [SerializeField] private Timer timer = default;
 
+    /// <summary>
+    /// リザルト
+    /// </summary>
+    [SerializeField] private Result result = default;
+
+    /// <summary>
+    /// スポナ
+    /// </summary>
+    [SerializeField] private ZombieSpawner spawner = default;
+
+    /// <summary>
+    /// ゲームステータスのゲッタ/セッタ
+    /// </summary>
     public GAME_STATUS State
     {
         get { return state; }
         set
         {
+            // ステータスごとに処理を呼び出す
             state = value;
             switch (state)
             {
@@ -31,6 +66,10 @@ public class ZombiePanicVRGameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// メニュー
+    /// </summary>
+    /// <returns>遅延</returns>
     private IEnumerator Menu()
     {
         // タイトル表示
@@ -41,36 +80,49 @@ public class ZombiePanicVRGameManager : MonoBehaviour
         }
 
         // スタート選択表示
+        // プレイヤがスタートを選択するまで待機する
         message.SetMessage("Start");
-
         yield return StartCoroutine(player.Selected());
         message.Activate(false);
 
+        spawner.Active = true;
         State = GAME_STATUS.PLAY;
     }
 
+    /// <summary>
+    /// ゲームプレイ
+    /// </summary>
+    /// <returns>遅延</returns>
     private IEnumerator Play()
     {
-        yield return StartCoroutine(timer.CountDown());
+        // タイムオーバーになるまで待機
+        yield return StartCoroutine(timer.CountDown(10));
 
+        spawner.Active = false;
         State = GAME_STATUS.END;
     }
 
+    /// <summary>
+    /// ゲームエンド
+    /// </summary>
+    /// <returns>遅延</returns>
     private IEnumerator End()
     {
         message.SetMessage("Game Over");
+
+        yield return new WaitForSeconds(1.0f);
+
+        yield return StartCoroutine(result.ShowResult());
 
         yield return new WaitForSeconds(5);
         State = GAME_STATUS.MENU;
     }
 
+    /// <summary>
+    /// 初期化
+    /// </summary>
     void Start()
     {
         State = GAME_STATUS.MENU;
-    }
-
-    void Update()
-    {
-
     }
 }

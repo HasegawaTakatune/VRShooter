@@ -1,15 +1,25 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 通常ゾンビ
+/// </summary>
 public class Zombie : MonoBehaviour
 {
+    /// <summary>
+    /// ゾンビステータス保持
+    /// </summary>
     private ZOMBIE_STATUS state = ZOMBIE_STATUS.STOP;
+
+    /// <summary>
+    /// ゾンビステータスのゲッタ/セッタ
+    /// </summary>
     public ZOMBIE_STATUS State
     {
         get { return state; }
         set
         {
+            // ステータス変更ごとに処理を呼び出す
             if (state == ZOMBIE_STATUS.DEAD) return;
             state = value;
             switch (state)
@@ -22,37 +32,72 @@ public class Zombie : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// スピード
+    /// </summary>
     private float speed;
+
+    /// <summary>
+    /// スピードのゲッタ/セッタ
+    /// </summary>
     public float Speed
     {
         get { return speed; }
         set
         {
+            // 移動モーションの再設定・速度の再計算をする
             speed = value;
             animator.SetFloat("Speed", speed);
             forward = transform.forward * speed * Time.deltaTime;
         }
     }
 
-    private int health = 20;
+    /// <summary>
+    /// 体力
+    /// </summary>
+    [SerializeField] private int health = 20;
 
+    /// <summary>
+    /// ゾンビタイプ
+    /// </summary>
+    [SerializeField] private ZOMBIE_TYPE type = default;
+
+    /// <summary>
+    /// 移動方向（前方）
+    /// </summary>
     private Vector3 forward;
 
+    /// <summary>
+    /// アニメーター
+    /// </summary>
     [SerializeField] private Animator animator;
 
+    /// <summary>
+    /// バリケード
+    /// </summary>
     private Barricade barricade;
 
+    /// <summary>
+    /// コンポネントアタッチ時処理
+    /// </summary>
     private void Reset()
     {
         animator = GetComponent<Animator>();
     }
 
+    /// <summary>
+    /// 初期化
+    /// </summary>
     private void Start()
     {
         Speed = Random.Range(1.0f, 2.0f);
         State = ZOMBIE_STATUS.MOVE;
     }
 
+    /// <summary>
+    /// 移動
+    /// </summary>
+    /// <returns>遅延</returns>
     private IEnumerator Move()
     {
         while (state == ZOMBIE_STATUS.MOVE)
@@ -62,18 +107,26 @@ public class Zombie : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// アタック
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator Attack()
     {
         Speed = 0;
         animator.SetBool("Attack", true);
         AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(0); ;
 
+        // アニメーションステータスがアタックになるまで待機
         while (!info.IsTag("Attack"))
         {
             info = animator.GetCurrentAnimatorStateInfo(0);
             yield return null;
         }
+        // 攻撃する腕を振りかぶるタイミングの時間を取得
         float time = info.length / 2.0f;
+
+        // ステータスがアタックである限りループし、攻撃が当たる都度ダメージを与える
         while (true)
         {
             yield return new WaitForSeconds(time);
@@ -85,16 +138,25 @@ public class Zombie : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 倒された時の処理
+    /// </summary>
     private void Dead()
     {
         Speed = 0;
         animator.SetBool("Dead", true);
         StopAllCoroutines();
+        Score.AddScore(type);
         Destroy(gameObject, 5);
     }
 
+    /// <summary>
+    /// 当たり判定
+    /// </summary>
+    /// <param name="collision"></param>
     private void OnCollisionEnter(Collision collision)
     {
+        // バリケードまで行きついたら攻撃を開始する
         if (collision.gameObject.layer == Layer.BARRICADE)
         {
             barricade = collision.gameObject.GetComponent<Barricade>();
@@ -102,6 +164,10 @@ public class Zombie : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// ダメージを受ける
+    /// </summary>
+    /// <param name="dmg">ダメージ量</param>
     public void Damage(int dmg)
     {
         if (state == ZOMBIE_STATUS.DEAD) return;

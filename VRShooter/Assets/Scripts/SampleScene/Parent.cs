@@ -13,7 +13,7 @@ public class Parent : MonoBehaviour
     /// <summary>
     /// 
     /// </summary>
-    [SerializeField] private ENEMY_TYPE type;
+    [SerializeField] private ENEMY_TYPE type = default;
 
     private void Start()
     {

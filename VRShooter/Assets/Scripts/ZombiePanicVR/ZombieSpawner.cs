@@ -1,20 +1,35 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// ゾンビスポナ
+/// </summary>
 public class ZombieSpawner : MonoBehaviour
 {
+    /// <summary>
+    /// スポーン間隔
+    /// </summary>
     const float Interval = 3.0f;
 
-    [SerializeField] private GameObject prefab;
+    /// <summary>
+    /// プレファブ
+    /// </summary>
+    [SerializeField] private GameObject prefab = default;
 
-    public bool active = true;
+    /// <summary>
+    /// アクティブ
+    /// </summary>
+    private bool active = false;
 
-    private void Start()
-    {
-        StartCoroutine(Spawn());
-    }
+    /// <summary>
+    /// アクティブのゲッタ/セッタ
+    /// </summary>
+    public bool Active { get { return active; } set { active = value; if (active) StartCoroutine(Spawn()); } }
 
+    /// <summary>
+    /// スポーン
+    /// </summary>
+    /// <returns>遅延</returns>
     private IEnumerator Spawn()
     {
         Vector3 Point = transform.position;
@@ -25,7 +40,6 @@ public class ZombieSpawner : MonoBehaviour
             yield return new WaitForSeconds(1.0f);
             Point.x = Random.Range(-Interval, Interval);
             Instantiate(prefab, Point, Rota);
-            break;
         }
     }
 }

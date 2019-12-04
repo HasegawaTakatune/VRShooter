@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 
 /// <summary>
 /// プレイヤー
@@ -18,14 +17,14 @@ public class Player : MonoBehaviour
     private Transform horRot;
 
     /// <summary>
-    /// 
+    /// 選択UI
     /// </summary>
-    [SerializeField] private Selected selected;
+    [SerializeField] private Selected selected = default;
 
     /// <summary>
-    /// 
+    /// レイヤマスク
     /// </summary>
-    [SerializeField] private LayerMask mask;
+    [SerializeField] private LayerMask mask = default;
 
     /// <summary>
     /// 初期化
@@ -51,7 +50,7 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// 
+    /// 選択中にゲージがたまっていく処理
     /// </summary>
     /// <returns></returns>
     public IEnumerator Selected()

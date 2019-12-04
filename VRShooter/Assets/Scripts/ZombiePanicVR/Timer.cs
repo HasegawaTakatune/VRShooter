@@ -1,22 +1,39 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// タイマー
+/// </summary>
 public class Timer : MonoBehaviour
 {
-
+    /// <summary>
+    /// タイムリミット
+    /// </summary>
     [SerializeField] private int timeLimit = 10;
 
+    /// <summary>
+    /// テキスト
+    /// </summary>
     [SerializeField] private Text text;
 
+    /// <summary>
+    /// コンポネントアタッチ時処理
+    /// </summary>
     private void Reset()
     {
-        text = gameObject.GetComponentInChildren<Text>();
+        text = GameObject.Find("Timer").GetComponentInChildren<Text>();
     }
 
-    public IEnumerator CountDown()
+    /// <summary>
+    /// カウントダウン
+    /// </summary>
+    /// <param name="time">初期タイム</param>
+    /// <returns>遅延</returns>
+    public IEnumerator CountDown(int time)
     {
+        timeLimit = time;
+
         while (timeLimit > 0)
         {
             yield return new WaitForSeconds(1.0f);

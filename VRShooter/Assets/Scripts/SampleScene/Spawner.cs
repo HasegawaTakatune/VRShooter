@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
-    [SerializeField] private GameObject prefab;
+    [SerializeField] private GameObject prefab = default;
 
     [SerializeField] private List<Transform> point = new List<Transform>();
 
