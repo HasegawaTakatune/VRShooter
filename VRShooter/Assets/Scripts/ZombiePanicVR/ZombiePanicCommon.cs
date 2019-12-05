@@ -44,7 +44,17 @@ public enum ZOMBIE_TYPE
 public class Layer
 {
     /// <summary>
+    /// UI
+    /// </summary>
+    public const int UI = 5;
+
+    /// <summary>
     /// バリケード
     /// </summary>
     public const int BARRICADE = 11;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public const int WARP_ZONE = 12;
 }

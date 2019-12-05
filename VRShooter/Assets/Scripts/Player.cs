@@ -17,14 +17,49 @@ public class Player : MonoBehaviour
     private Transform horRot;
 
     /// <summary>
+    /// 弾丸
+    /// </summary>
+    [SerializeField] private GameObject bullet = default;
+
+    /// <summary>
+    /// ワープポイント
+    /// </summary>
+    private Transform warpPoint = default;
+
+    /// <summary>
+    /// デリゲート
+    /// </summary>
+    private delegate void Action();
+
+    /// <summary>
+    /// アクション
+    /// </summary>
+    private Action action;
+
+    /// <summary>
     /// 選択UI
     /// </summary>
     [SerializeField] private Selected selected = default;
 
+    [SerializeField] private LayerMask UILayer;
+
+    [SerializeField] private LayerMask warpLayer;
+
     /// <summary>
-    /// レイヤマスク
+    /// 弾を撃ちだす
     /// </summary>
-    [SerializeField] private LayerMask mask = default;
+    private void Shoot()
+    {
+        Instantiate(bullet, transform.position + transform.forward, transform.rotation);
+    }
+
+    /// <summary>
+    /// ワープ
+    /// </summary>
+    private void Warp()
+    {
+        transform.position = warpPoint.position;
+    }
 
     /// <summary>
     /// 初期化
@@ -33,6 +68,8 @@ public class Player : MonoBehaviour
     {
         verRot = transform.parent;
         horRot = transform;
+        action = Shoot;
+        StartCoroutine(SelectWarpZone());
     }
 
     /// <summary>
@@ -40,13 +77,28 @@ public class Player : MonoBehaviour
     /// </summary>
     private void Update()
     {
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
+        // エディタではマウスクリック、Android上では画面タッチで処理させる
+#if UNITY_EDITOR
+
         float xRotation = Input.GetAxis("Mouse X");
         float yRotation = Input.GetAxis("Mouse Y");
 
         verRot.transform.Rotate(0, xRotation, 0);
         horRot.transform.Rotate(-yRotation, 0, 0);
+
+        if (Input.GetMouseButtonDown(0))
+            action();
+
+#elif UNITY_ANDROID
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+
+            if(touch.phase == TouchPhase.Began)
+                action();
+        }
 #endif 
+        Debug.DrawRay(transform.position, transform.forward, Color.red, Mathf.Infinity);
     }
 
     /// <summary>
@@ -61,8 +113,9 @@ public class Player : MonoBehaviour
             yield return null;
 
             // 選択項目を注視している間ゲージがたまる
-            if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, Mathf.Infinity, mask))
+            if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, Mathf.Infinity, UILayer))
             {
+                Debug.Log(hit.collider.gameObject.name);
                 if (selected.TimeCount(Time.deltaTime))
                     break;
             }
@@ -73,4 +126,42 @@ public class Player : MonoBehaviour
         }
         selected.Activate(false);
     }
+
+    /// <summary>
+    /// ワープゾーンを選択する
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerator SelectWarpZone()
+    {
+        MeshRenderer renderer = null;
+
+        while (true)
+        {
+            yield return null;
+
+            if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, Mathf.Infinity, warpLayer))
+            {
+                Debug.Log("call");
+
+                if (renderer == null)
+                {
+                    action = Warp;
+                    warpPoint = hit.collider.gameObject.transform;
+                    renderer = hit.collider.gameObject.GetComponent<MeshRenderer>();
+                    renderer.enabled = true;
+                }
+            }
+            else
+            {
+                if (renderer != null)
+                {
+                    action = Shoot;
+                    warpPoint = null;                    
+                    renderer.enabled = false;
+                    renderer = null;
+                }
+            }
+        }
+    }
+
 }

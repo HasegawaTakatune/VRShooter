@@ -95,9 +95,13 @@ public class ZombiePanicVRGameManager : MonoBehaviour
     /// <returns>遅延</returns>
     private IEnumerator Play()
     {
+        // ワープゾーンの選択を可能とする
+        //StartCoroutine(player.SelectWarpZone());
+
         // タイムオーバーになるまで待機
         yield return StartCoroutine(timer.CountDown(10));
 
+        //StopCoroutine(player.SelectWarpZone());
         spawner.Active = false;
         State = GAME_STATUS.END;
     }
