@@ -41,8 +41,14 @@ public class Player : MonoBehaviour
     /// </summary>
     [SerializeField] private Selected selected = default;
 
+    /// <summary>
+    /// UIレイヤー
+    /// </summary>
     [SerializeField] private LayerMask UILayer;
 
+    /// <summary>
+    /// ワープレイヤー
+    /// </summary>
     [SerializeField] private LayerMask warpLayer;
 
     /// <summary>
@@ -58,7 +64,7 @@ public class Player : MonoBehaviour
     /// </summary>
     private void Warp()
     {
-        transform.position = warpPoint.position;
+        transform.parent.position = warpPoint.position + Vector3.up;
     }
 
     /// <summary>
@@ -69,7 +75,7 @@ public class Player : MonoBehaviour
         verRot = transform.parent;
         horRot = transform;
         action = Shoot;
-        StartCoroutine(SelectWarpZone());
+        //StartCoroutine(SelectWarpZone());
     }
 
     /// <summary>
@@ -115,7 +121,6 @@ public class Player : MonoBehaviour
             // 選択項目を注視している間ゲージがたまる
             if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, Mathf.Infinity, UILayer))
             {
-                Debug.Log(hit.collider.gameObject.name);
                 if (selected.TimeCount(Time.deltaTime))
                     break;
             }
@@ -141,8 +146,6 @@ public class Player : MonoBehaviour
 
             if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, Mathf.Infinity, warpLayer))
             {
-                Debug.Log("call");
-
                 if (renderer == null)
                 {
                     action = Warp;
@@ -156,7 +159,7 @@ public class Player : MonoBehaviour
                 if (renderer != null)
                 {
                     action = Shoot;
-                    warpPoint = null;                    
+                    warpPoint = null;
                     renderer.enabled = false;
                     renderer = null;
                 }

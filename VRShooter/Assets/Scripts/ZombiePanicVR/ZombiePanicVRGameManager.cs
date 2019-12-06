@@ -96,12 +96,12 @@ public class ZombiePanicVRGameManager : MonoBehaviour
     private IEnumerator Play()
     {
         // ワープゾーンの選択を可能とする
-        //StartCoroutine(player.SelectWarpZone());
+        StartCoroutine(player.SelectWarpZone());
 
         // タイムオーバーになるまで待機
-        yield return StartCoroutine(timer.CountDown(10));
+        yield return StartCoroutine(timer.CountDown(120));
 
-        //StopCoroutine(player.SelectWarpZone());
+        StopCoroutine(player.SelectWarpZone());
         spawner.Active = false;
         State = GAME_STATUS.END;
     }
@@ -113,8 +113,8 @@ public class ZombiePanicVRGameManager : MonoBehaviour
     private IEnumerator End()
     {
         message.SetMessage("Game Over");
-
         yield return new WaitForSeconds(1.0f);
+        message.Activate(false);
 
         yield return StartCoroutine(result.ShowResult());
 
