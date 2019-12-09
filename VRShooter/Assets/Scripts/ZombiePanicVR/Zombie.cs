@@ -19,6 +19,7 @@ public class Zombie : MonoBehaviour
         get { return state; }
         set
         {
+            ZOMBIE_STATUS tmp = state;
             // ステータス変更ごとに処理を呼び出す
             if (state == ZOMBIE_STATUS.DEAD) return;
             state = value;
@@ -165,7 +166,7 @@ public class Zombie : MonoBehaviour
     }
 
     /// <summary>
-    /// ダメージを受ける
+    /// ダメージ処理
     /// </summary>
     /// <param name="dmg">ダメージ量</param>
     public void Damage(int dmg)

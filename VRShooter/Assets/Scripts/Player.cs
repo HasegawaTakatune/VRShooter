@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// プレイヤー
@@ -17,9 +18,29 @@ public class Player : MonoBehaviour
     private Transform horRot;
 
     /// <summary>
-    /// 弾丸
+    /// ヒットエフェクト
     /// </summary>
-    [SerializeField] private GameObject bullet = default;
+    [SerializeField] private GameObject hitEffect = default;
+
+    /// <summary>
+    /// エイム
+    /// </summary>
+    [SerializeField] private Image Aim = default;
+
+    /// <summary>
+    /// ヒットエイムUI表示時間
+    /// </summary>
+    private float hitTime = 0;
+
+    /// <summary>
+    /// ショットエフェクト
+    /// </summary>
+    [SerializeField] private ParticleSystem shotEffect = default;
+
+    /// <summary>
+    /// ダメージ
+    /// </summary>
+    [SerializeField] private int damage = 10;
 
     /// <summary>
     /// ワープポイント
@@ -42,21 +63,46 @@ public class Player : MonoBehaviour
     [SerializeField] private Selected selected = default;
 
     /// <summary>
+    /// ゾンビレイヤー
+    /// </summary>
+    [SerializeField] private LayerMask ZombieLayer = default;
+
+    /// <summary>
     /// UIレイヤー
     /// </summary>
-    [SerializeField] private LayerMask UILayer;
+    [SerializeField] private LayerMask UILayer = default;
 
     /// <summary>
     /// ワープレイヤー
     /// </summary>
-    [SerializeField] private LayerMask warpLayer;
+    [SerializeField] private LayerMask warpLayer = default;
 
     /// <summary>
     /// 弾を撃ちだす
     /// </summary>
     private void Shoot()
     {
-        Instantiate(bullet, transform.position + transform.forward, transform.rotation);
+        shotEffect.Play();
+        if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, Mathf.Infinity, ZombieLayer))
+        {
+            if (hitTime > 0) hitTime = 0.5f;
+            else { hitTime = 0.5f; StartCoroutine(Hit()); }
+            hit.collider.GetComponent<Zombie>().Damage(damage);
+            Instantiate(hitEffect, hit.point, Quaternion.identity);
+        }
+    }
+
+    private IEnumerator Hit()
+    {
+        Aim.color = Color.red;
+
+        float deltaTime = Time.deltaTime;
+        while (hitTime > 0)
+        {
+            yield return new WaitForSeconds(deltaTime);
+            hitTime -= deltaTime;
+        }
+        Aim.color = Color.white;
     }
 
     /// <summary>
@@ -75,7 +121,6 @@ public class Player : MonoBehaviour
         verRot = transform.parent;
         horRot = transform;
         action = Shoot;
-        //StartCoroutine(SelectWarpZone());
     }
 
     /// <summary>
@@ -103,8 +148,7 @@ public class Player : MonoBehaviour
             if(touch.phase == TouchPhase.Began)
                 action();
         }
-#endif 
-        Debug.DrawRay(transform.position, transform.forward, Color.red, Mathf.Infinity);
+#endif        
     }
 
     /// <summary>

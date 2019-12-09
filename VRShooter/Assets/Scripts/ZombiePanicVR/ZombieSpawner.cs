@@ -40,6 +40,7 @@ public class ZombieSpawner : MonoBehaviour
             yield return new WaitForSeconds(1.0f);
             Point.x = Random.Range(-Interval, Interval);
             Instantiate(prefab, Point, Rota);
+            break;
         }
     }
 }
