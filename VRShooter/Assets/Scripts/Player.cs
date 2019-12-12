@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -35,7 +36,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// ショットエフェクト
     /// </summary>
-    [SerializeField] private ParticleSystem shotEffect = default;
+    [SerializeField] private List<ParticleSystem> shotEffects = new List<ParticleSystem>();
 
     /// <summary>
     /// ダメージ
@@ -78,11 +79,32 @@ public class Player : MonoBehaviour
     [SerializeField] private LayerMask warpLayer = default;
 
     /// <summary>
+    /// 初期化
+    /// </summary>
+    private void Start()
+    {
+        verRot = transform.parent;
+        horRot = transform;
+        action = Shoot;
+    }
+
+    /// <summary>
     /// 弾を撃ちだす
     /// </summary>
     private void Shoot()
     {
-        shotEffect.Play();
+#if UNITY_EDITOR
+        if (Input.GetMouseButton(0))
+            _Shoot();
+#elif UNITY_ANDROID
+        if (Input.touchCount > 0)
+            _Shoot();
+#endif
+    }
+
+    private void _Shoot()
+    {
+        for (int i = 0; i < shotEffects.Count; i++) shotEffects[i].Play();
         if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, Mathf.Infinity, ZombieLayer))
         {
             if (hitTime > 0) hitTime = 0.5f;
@@ -110,17 +132,23 @@ public class Player : MonoBehaviour
     /// </summary>
     private void Warp()
     {
-        transform.parent.position = warpPoint.position + Vector3.up;
+#if UNITY_EDITOR
+        if (Input.GetMouseButtonDown(0))
+            _Warp();
+#elif UNITY_ANDROID
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+
+            if(touch.phase == TouchPhase.Began)
+                _Warp();
+        }
+#endif
     }
 
-    /// <summary>
-    /// 初期化
-    /// </summary>
-    private void Start()
+    private void _Warp()
     {
-        verRot = transform.parent;
-        horRot = transform;
-        action = Shoot;
+        transform.parent.position = warpPoint.position + Vector3.up;
     }
 
     /// <summary>
@@ -136,19 +164,8 @@ public class Player : MonoBehaviour
 
         verRot.transform.Rotate(0, xRotation, 0);
         horRot.transform.Rotate(-yRotation, 0, 0);
-
-        if (Input.GetMouseButtonDown(0))
-            action();
-
-#elif UNITY_ANDROID
-        if (Input.touchCount > 0)
-        {
-            Touch touch = Input.GetTouch(0);
-
-            if(touch.phase == TouchPhase.Began)
-                action();
-        }
-#endif        
+#endif
+        action();
     }
 
     /// <summary>
@@ -182,7 +199,7 @@ public class Player : MonoBehaviour
     /// <returns></returns>
     public IEnumerator SelectWarpZone()
     {
-        MeshRenderer renderer = null;
+        WarpZone warp = default;
 
         while (true)
         {
@@ -190,22 +207,22 @@ public class Player : MonoBehaviour
 
             if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, Mathf.Infinity, warpLayer))
             {
-                if (renderer == null)
+                if (warp == null)
                 {
                     action = Warp;
                     warpPoint = hit.collider.gameObject.transform;
-                    renderer = hit.collider.gameObject.GetComponent<MeshRenderer>();
-                    renderer.enabled = true;
+                    warp = hit.collider.GetComponent<WarpZone>();
+                    warp.Look();
                 }
             }
             else
             {
-                if (renderer != null)
+                if (warp != null)
                 {
                     action = Shoot;
                     warpPoint = null;
-                    renderer.enabled = false;
-                    renderer = null;
+                    warp.NotLook();
+                    warp = null;
                 }
             }
         }
